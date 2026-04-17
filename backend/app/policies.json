@@ -1,0 +1,34 @@
+[
+  {
+    "title": "Refund Policy",
+    "content": "Customers are eligible for a full refund within 7 days of delivery if the product is damaged, defective, or incorrect. Refunds will not be provided for products that show signs of misuse or wear after delivery. Refunds are processed within 5-7 business days after approval."
+  },
+  {
+    "title": "Return Policy",
+    "content": "Products can be returned within 10 days of delivery only if they are unused, unwashed, and in original packaging with all tags intact. Certain items such as personal care products and perishables are not eligible for return."
+  },
+  {
+    "title": "Exchange Policy",
+    "content": "Exchanges are allowed within 10 days of delivery for size or color issues, subject to stock availability. If the requested item is unavailable, customers may opt for a refund or store credit."
+  },
+  {
+    "title": "Delivery Delay Policy",
+    "content": "If delivery is delayed beyond 5 business days from the estimated delivery date, customers are eligible for compensation in the form of a coupon or partial refund depending on order value."
+  },
+  {
+    "title": "Order Cancellation Policy",
+    "content": "Orders can be cancelled within 24 hours of placement if they have not been shipped. Once shipped, cancellation is not allowed, but return options may apply after delivery."
+  },
+  {
+    "title": "Damaged Product Policy",
+    "content": "If a product arrives damaged, customers must report it within 48 hours of delivery with photo or video evidence. Verified claims are eligible for replacement or full refund."
+  },
+  {
+    "title": "Warranty Policy",
+    "content": "Electronics and select items come with a manufacturer warranty ranging from 6 months to 2 years. Warranty claims must be made directly with the manufacturer unless otherwise specified."
+  },
+  {
+    "title": "Non-Returnable Items",
+    "content": "Certain categories such as undergarments, personal hygiene products, digital goods, and perishable items are not eligible for return or refund under any circumstances."
+  }
+]
