@@ -9,3 +9,7 @@ requests
 sarvam
 
 python-multipart
+
+chromadb
+sentence-transformers
+pypdf

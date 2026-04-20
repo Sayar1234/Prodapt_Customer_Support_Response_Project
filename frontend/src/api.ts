@@ -11,6 +11,9 @@ export interface ApiResponse {
   documents: Document[];
 }
 
+// 🔥 IMPORTANT: change this if backend URL changes
+// const API_BASE = "http://localhost:8000";
+
 export async function generateResponse(
   query: string,
   mode: Mode
@@ -24,7 +27,8 @@ export async function generateResponse(
   });
 
   if (!res.ok) {
-    throw new Error("Backend request failed");
+    const errorText = await res.text();
+    throw new Error(errorText || "Backend request failed");
   }
 
   return res.json();

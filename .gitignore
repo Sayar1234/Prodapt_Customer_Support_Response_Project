@@ -4,8 +4,10 @@
 # =========================
 backend/.env
 backend/*.env
+chroma_db/
 .env
 *.env
+
 
 # =========================
 # PYTHON (BACKEND)
@@ -42,6 +44,7 @@ build/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+/backend/logs.json
 
 # =========================
 # IDE / OS FILES

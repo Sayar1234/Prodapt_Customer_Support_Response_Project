@@ -11,23 +11,27 @@ export default function App() {
   const [docs, setDocs] = useState<Document[]>([]);
 
   const handleGenerate = async () => {
-    if (!query.trim()) return;
+  if (!query.trim()) return;
 
-    setLoading(true);
-    setResponse("");
-    setDocs([]);
+  setLoading(true);
+  setResponse("");
+  setDocs([]);
 
-    try {
-      const data = await generateResponse(query, mode);
+  try {
+    const data = await generateResponse(query, mode);
 
-      setResponse(data.response);
-      setDocs(data.documents);
-    } catch (err) {
-      setResponse(`Failed to connect to backend. Error: ${err}`);
-    }
-
+    setResponse(data.response ?? "No response returned");
+    setDocs(data.documents ?? []);
+  } catch (err: any) {
+    setResponse(
+      err.name === "AbortError"
+        ? "Request timed out. Backend is slow or not responding."
+        : `Failed to connect to backend: ${err.message || err}`
+    );
+  } finally {
     setLoading(false);
-  };
+  }
+};
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -128,9 +132,9 @@ export default function App() {
                   <p className="text-sm text-gray-600 mt-1">
                     {doc.content}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  {/* <p className="text-xs text-gray-400 mt-1">
                     Score: {doc.score.toFixed(2)}
-                  </p>
+                  </p> */}
                 </div>
               ))}
 
