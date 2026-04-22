@@ -7,6 +7,7 @@ from app.prompts import strict_prompt, friendly_prompt, fallback_prompt
 from app.sarvam import call_sarvam
 from app.logger import log_request
 from app.hr_chroma import HRChromaRetriever
+from app.hr_pinecone import HRPineconeRetriever
 from app.bm25 import BM25Retriever
 
 from dotenv import load_dotenv
@@ -29,6 +30,7 @@ app.add_middleware(
 
 retriever = BM25Retriever("app/policies.json")
 hr_chroma = HRChromaRetriever("app/sample.pdf")
+hr_pinecone = HRPineconeRetriever("app/sample.pdf")
 
 class QueryRequest(BaseModel):
     query: str
@@ -43,7 +45,7 @@ def root():
 @app.post("/generate")
 def generate(req: QueryRequest):
     # results = retriever.search(req.query)
-    results = hr_chroma.search(req.query)
+    results = hr_pinecone.search(req.query)
 
     # ✅ FIX: No BM25 score logic anymore
     if not results or len(results) == 0:

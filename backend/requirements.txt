@@ -11,5 +11,6 @@ sarvam
 python-multipart
 
 chromadb
+pinecone
 sentence-transformers
 pypdf
