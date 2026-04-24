@@ -62,7 +62,7 @@ class HRPineconeRetriever:
         for i in range(0, len(vectors), batch_size):
             self.index.upsert(vectors=vectors[i:i + batch_size])
 
-    def search(self, query, top_k=3):
+    def search(self, query, top_k=20):
         q_emb = self.embedder.encode([query])[0].tolist()
 
         res = self.index.query(

@@ -11,6 +11,7 @@ from app.hr_pinecone import HRPineconeRetriever
 from app.bm25 import BM25Retriever
 
 from dotenv import load_dotenv
+from app.reranker import Reranker
 
 load_dotenv()
 
@@ -31,6 +32,7 @@ app.add_middleware(
 retriever = BM25Retriever("app/policies.json")
 hr_chroma = HRChromaRetriever("app/sample.pdf")
 hr_pinecone = HRPineconeRetriever("app/sample.pdf")
+reranker = Reranker()
 
 class QueryRequest(BaseModel):
     query: str
@@ -45,7 +47,10 @@ def root():
 @app.post("/generate")
 def generate(req: QueryRequest):
     # results = retriever.search(req.query)
-    results = hr_pinecone.search(req.query)
+    results = hr_pinecone.search(req.query, top_k=20)
+
+    if results and len(results) > 0:
+        results = reranker.rerank(req.query, results, top_n=5)
 
     # ✅ FIX: No BM25 score logic anymore
     if not results or len(results) == 0:

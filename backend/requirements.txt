@@ -14,3 +14,6 @@ chromadb
 pinecone
 sentence-transformers
 pypdf
+
+langchain
+langchain_text_splitters
