@@ -43,7 +43,7 @@ export default function App() {
         </h1>
 
         <span className="text-sm text-gray-500">
-          FastAPI + BM25 + Sarvam
+          FastAPI + OpenRouter + PineconeDB
         </span>
       </header>
 
