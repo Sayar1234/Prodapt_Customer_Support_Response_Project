@@ -125,16 +125,24 @@ export default function App() {
 
               {docs.map((doc, i) => (
                 <div
-                  key={i}
-                  className="border rounded-lg p-3 bg-gray-50"
+                  key={doc.id || i}
+                  className="border rounded-xl p-3 bg-gray-50 hover:bg-gray-100 transition"
                 >
-                  <p className="font-semibold">{doc.title}</p>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {doc.content}
+                  {/* Header */}
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="font-semibold text-sm text-gray-800">
+                      {doc.title}
+                    </p>
+
+                    <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-600">
+                      {(doc.score * 100).toFixed(0)}%
+                    </span>
+                  </div>
+
+                  {/* Content */}
+                  <p className="text-sm text-gray-600">
+                    {doc.preview || doc.content.slice(0, 180) + "..."}
                   </p>
-                  {/* <p className="text-xs text-gray-400 mt-1">
-                    Score: {doc.score.toFixed(2)}
-                  </p> */}
                 </div>
               ))}
 

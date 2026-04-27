@@ -1,9 +1,11 @@
 export type Mode = "strict" | "friendly";
 
 export interface Document {
+  id?: string;          
   title: string;
   content: string;
   score: number;
+  preview?: string;     
 }
 
 export interface ApiResponse {

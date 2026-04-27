@@ -5,7 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 from app.prompts import strict_prompt, friendly_prompt, fallback_prompt
-from app.sarvam import call_sarvam
+# from app.sarvam import call_sarvam
+from app.openrouter import call_openrouter
 from app.logger import log_request
 
 from app.hr_pinecone import HRPineconeRetriever
@@ -27,7 +28,8 @@ app.add_middleware(
 )
 
 # 🔹 Initialize retrievers
-bm25 = BM25Retriever("app/policies.json")
+# bm25 = BM25Retriever("app/policies.json")
+bm25 = BM25Retriever("app/sample.pdf")
 pinecone = HRPineconeRetriever("app/sample.pdf")
 reranker = Reranker()
 
@@ -98,7 +100,12 @@ def generate(req: QueryRequest):
         max_tokens = 250
 
     # 🔹 8. LLM call
-    response = call_sarvam(prompt, temperature, max_tokens)
+    response = call_openrouter(
+        prompt=prompt,
+        temperature=temperature,
+        max_tokens=max_tokens,
+        # model="openai/gpt-4o-mini"
+    )
 
     # 🔹 9. Logging
     log_request(query, results, prompt, temperature, max_tokens)
@@ -108,10 +115,12 @@ def generate(req: QueryRequest):
         "response": response,
         "documents": [
             {
+                "id": f"doc-{i}",
                 "title": d["title"],
                 "content": d["content"],
-                "score": d["score"]
+                "score": round(d["score"], 3),
+                "preview": d["content"][:180] + "..."
             }
-            for d in results
+            for i, d in enumerate(results)
         ]
     }
