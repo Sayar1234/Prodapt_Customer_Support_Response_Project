@@ -12,6 +12,7 @@ from app.hr_pinecone import HRPineconeRetriever
 from app.bm25 import BM25Retriever
 from app.retrieval_utils import normalize_docs, deduplicate_docs, build_context
 from app.reranker import Reranker
+from app.query_rewriter import rewrite_query
 
 load_dotenv()
 
@@ -43,7 +44,9 @@ def root():
 
 @app.post("/generate")
 def generate(req: QueryRequest):
-    query = req.query.strip()
+    # query = req.query.strip()
+    original_query = req.query.strip()
+    query = rewrite_query(original_query)
 
     # 🔹 1. Hybrid Retrieval
     pinecone_results = pinecone.search(query, top_k=10)
