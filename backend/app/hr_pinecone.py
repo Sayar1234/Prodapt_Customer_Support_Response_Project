@@ -71,10 +71,15 @@ class HRPineconeRetriever:
             include_metadata=True
         )
 
-        return [
-            {
-                "title": "HR Policy",
-                "content": match["metadata"]["text"]
-            }
-            for match in res["matches"]
-        ]
+        results = []
+
+        for match in res["matches"]:
+            score = float(match["score"])  # cosine similarity (0–1)
+
+            results.append({
+                "title": match["metadata"].get("source", "HR Policy"),
+                "content": match["metadata"].get("text", ""),
+                "score": score
+            })
+
+        return results

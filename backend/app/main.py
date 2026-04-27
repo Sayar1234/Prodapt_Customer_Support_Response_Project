@@ -2,15 +2,15 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
-# from app.hr_chroma import HRChromaRetriever
+from dotenv import load_dotenv
+
 from app.prompts import strict_prompt, friendly_prompt, fallback_prompt
 from app.sarvam import call_sarvam
 from app.logger import log_request
-from app.hr_chroma import HRChromaRetriever
+
 from app.hr_pinecone import HRPineconeRetriever
 from app.bm25 import BM25Retriever
-
-from dotenv import load_dotenv
+from app.retrieval_utils import normalize_docs, deduplicate_docs, build_context
 from app.reranker import Reranker
 
 load_dotenv()
@@ -25,14 +25,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ Use PDF-based Chroma instead of BM25
-# retriever = HRChromaRetriever("app/sample.pdf")
-
-
-retriever = BM25Retriever("app/policies.json")
-hr_chroma = HRChromaRetriever("app/sample.pdf")
-hr_pinecone = HRPineconeRetriever("app/sample.pdf")
+# 🔹 Initialize retrievers
+bm25 = BM25Retriever("app/policies.json")
+pinecone = HRPineconeRetriever("app/sample.pdf")
 reranker = Reranker()
+
 
 class QueryRequest(BaseModel):
     query: str
@@ -46,34 +43,72 @@ def root():
 
 @app.post("/generate")
 def generate(req: QueryRequest):
-    # results = retriever.search(req.query)
-    results = hr_pinecone.search(req.query, top_k=20)
+    query = req.query.strip()
 
-    if results and len(results) > 0:
-        results = reranker.rerank(req.query, results, top_n=5)
+    # 🔹 1. Hybrid Retrieval
+    pinecone_results = pinecone.search(query, top_k=10)
+    bm25_results = bm25.search(query, top_k=10)
 
-    # ✅ FIX: No BM25 score logic anymore
-    if not results or len(results) == 0:
+    # 🔹 2. Normalize (safe even if already clean)
+    pinecone_results = normalize_docs(pinecone_results)
+    bm25_results = normalize_docs(bm25_results)
+
+    # 🔹 3. Score weighting (IMPORTANT)
+    for d in pinecone_results:
+        d["score"] *= 1.2  # semantic boost
+
+    for d in bm25_results:
+        d["score"] *= 0.8  # keyword lower weight
+
+    # 🔹 4. Merge
+    results = pinecone_results + bm25_results
+
+    # 🔹 5. Deduplicate
+    results = deduplicate_docs(results)
+
+    # 🔹 6. Rerank
+    if results:
+        results = reranker.rerank(query, results, top_n=5)
+
+    # 🔹 DEBUG (remove later if needed)
+    print("\n=== FINAL RETRIEVED DOCS ===")
+    for i, d in enumerate(results):
+        print(f"{i+1}. {d['title']} | {d['score']:.3f}")
+        print(d["content"][:120])
+        print("------")
+
+    # 🔹 7. Fallback check
+    if not results or results[0]["score"] < 0.15:
         prompt = fallback_prompt()
         temperature = 0.2
-        max_tokens = 50
+        max_tokens = 80
     else:
-        docs_text = "\n\n".join([doc["content"] for doc in results])
+        docs_text = build_context(results)
 
         if req.mode == "strict":
-            prompt = strict_prompt(docs_text, req.query)
+            prompt = strict_prompt(docs_text, query)
             temperature = 0.2
-            max_tokens = 250
         else:
-            prompt = friendly_prompt(docs_text, req.query)
+            prompt = friendly_prompt(docs_text, query)
             temperature = 0.7
-            max_tokens = 250
 
+        max_tokens = 250
+
+    # 🔹 8. LLM call
     response = call_sarvam(prompt, temperature, max_tokens)
 
-    log_request(req.query, results, prompt, temperature, max_tokens)
+    # 🔹 9. Logging
+    log_request(query, results, prompt, temperature, max_tokens)
 
+    # 🔹 10. Response
     return {
         "response": response,
-        "documents": results
+        "documents": [
+            {
+                "title": d["title"],
+                "content": d["content"],
+                "score": d["score"]
+            }
+            for d in results
+        ]
     }
