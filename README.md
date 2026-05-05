@@ -1,55 +1,82 @@
 # AI Customer Support Response Generator
 
-A minimalist AI based customer support response generator that generates responses to the user query.
+A minimalist AI-powered HR support response generator with hybrid retrieval, LlamaIndex, and LangServe integration.
 
-# Features
+## Features
 
-- Has two modes: Strict Mode and Friendly Mode
-- Takes user query and generates suitable response based on selected mode.
-- Also returns which chunks are related to sent query. (Buggy)
+- **Dual Modes**: Strict and Friendly response modes
+- **Hybrid Retrieval**: BM25 keyword search + Pinecone semantic search
+- **Auto-Reranking**: Intelligent document reranking for better context
+- **Query Rewriting**: Automatic query optimization for retrieval
+- **LangServe Integration**: REST API with interactive playground
+- **LlamaIndex RAG**: Structured retrieval-augmented generation pipeline
 
-# Tech Used
+## Tech Stack
 
-- Frontend: React + TypeScript
-- Styling: TailwindCSS
-- Backend: FastAPI
-- AI API: OpenRouter
-- Vector Embeddings: Pinecone
+- **Frontend**: React + TypeScript + TailwindCSS
+- **Backend**: FastAPI + LlamaIndex + LangServe
+- **LLM**: OpenRouter (GPT-4o-mini)
+- **Vector DB**: Pinecone
+- **Keyword Search**: BM25
+- **Embeddings**: Sentence Transformers (MiniLM)
 
-# How to run?
+## Quick Setup
 
-Running the backend
+### 1. Backend Environment Variables
+
+Create `backend/.env`:
+
+```env
+OPENROUTER_API_KEY=your_openrouter_key
+PINECONE_API_KEY=your_pinecone_key
+PINECONE_INDEX=hr-policy
+```
+
+### 2. Running the Backend
 
 ```bash
-# Go to backend folder
 cd backend/
 
-# Create a virtual environment
+# Create and activate virtual environment
 python -m venv venv
+venv/Scripts/Activate.ps1          # Windows PowerShell
+# source venv/bin/activate          # Mac/Linux
 
-# Start off virtual environment
-venv/Scripts/activate
-
-# Install requirements
+# Install dependencies
 pip install -r requirements.txt
 
-# Run the backend
+# Start server
 uvicorn app.main:app --reload
 ```
 
-Backend will be live at http://localhost:8000
+Backend runs at **http://localhost:8000**
 
-Running the frontend
+### 3. Running the Frontend
 
 ```bash
-# Go to frontend folder
-cd frontend
+cd frontend/
 
-# Install dependencies
 npm install
-
-# Run the frontend
 npm run dev
 ```
 
-Frontend will be live at http://localhost:5173
+Frontend runs at **http://localhost:5173**
+
+## API Endpoints
+
+### Legacy Endpoint (Backward Compatible)
+
+- `POST /generate` - Original endpoint your frontend uses
+
+### New LangServe Endpoints
+
+- `POST /langserve/generate/invoke` - Full RAG pipeline (recommended)
+- `POST /langserve/retrieve/invoke` - Document retrieval only
+- `POST /langserve/rewrite/invoke` - Query rewriting
+- `GET /langserve/generate/playground` - Interactive UI for testing
+
+## Documentation
+
+- **Full Integration Guide**: `backend/LLAMAINDEX_LANGSERVE_INTEGRATION.md`
+- **Quick Start**: `backend/QUICKSTART.md`
+- **Python Client Examples**: `backend/examples/client.py`
