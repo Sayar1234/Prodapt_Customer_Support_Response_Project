@@ -17,3 +17,8 @@ pypdf
 
 langchain
 langchain_text_splitters
+llama-index-core
+llama-index-retrievers-bm25
+llama-index-vector-stores-pinecone
+llama-index-llms-openrouter
+langserve[all]

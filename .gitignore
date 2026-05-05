@@ -5,6 +5,8 @@
 backend/.env
 backend/*.env
 chroma_db/
+backend/examples/
+backend/*.json
 .env
 *.env
 

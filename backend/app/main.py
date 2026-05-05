@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 
@@ -15,9 +16,34 @@ from app.retrieval_utils import normalize_docs, deduplicate_docs, build_context
 from app.reranker import Reranker
 from app.query_rewriter import rewrite_query
 
+# LlamaIndex and LangServe imports
+from app.langserve_chains import (
+    rag_chain, 
+    retrieval_chain, 
+    rewriting_chain,
+    QueryRequest as LangServeQueryRequest,
+    QueryResponse
+)
+from langserve import add_routes
+
 load_dotenv()
 
-app = FastAPI()
+# Lifecycle event to initialize on startup
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application startup and shutdown"""
+    # Startup
+    print("🚀 Initializing HR Support Backend with LlamaIndex + LangServe")
+    yield
+    # Shutdown
+    print("🛑 Shutting down HR Support Backend")
+
+app = FastAPI(
+    title="HR Support Response System",
+    description="AI-powered HR support with hybrid retrieval, LlamaIndex, and LangServe",
+    version="2.0.0",
+    lifespan=lifespan
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -27,7 +53,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 🔹 Initialize retrievers
+# ==================== LangServe Routes ====================
+# These endpoints use LlamaIndex + LangServe for better structure
+
+add_routes(
+    app,
+    rag_chain,
+    path="/langserve/generate"
+)
+
+add_routes(
+    app,
+    retrieval_chain,
+    path="/langserve/retrieve"
+)
+
+add_routes(
+    app,
+    rewriting_chain,
+    path="/langserve/rewrite"
+)
+
+# ==================== Legacy Routes (Backward Compatible) ====================
 # bm25 = BM25Retriever("app/policies.json")
 bm25 = BM25Retriever("app/sample.pdf")
 pinecone = HRPineconeRetriever("app/sample.pdf")
