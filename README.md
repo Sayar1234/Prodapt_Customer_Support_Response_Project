@@ -74,9 +74,3 @@ Frontend runs at **http://localhost:5173**
 - `POST /langserve/retrieve/invoke` - Document retrieval only
 - `POST /langserve/rewrite/invoke` - Query rewriting
 - `GET /langserve/generate/playground` - Interactive UI for testing
-
-## Documentation
-
-- **Full Integration Guide**: `backend/LLAMAINDEX_LANGSERVE_INTEGRATION.md`
-- **Quick Start**: `backend/QUICKSTART.md`
-- **Python Client Examples**: `backend/examples/client.py`
